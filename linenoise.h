@@ -102,6 +102,9 @@ int linenoiseHistoryLoad(const char *filename);
 /* Other utilities. */
 void linenoiseClearScreen(void);
 void linenoiseSetMultiLine(int ml);
+void linenoiseSetIgnoreSpaces(int is);
+void linenoiseSetIgnoreDups(int id);
+void linenoiseSetEraseDups(int ed);
 void linenoisePrintKeyCodes(void);
 void linenoiseMaskModeEnable(void);
 void linenoiseMaskModeDisable(void);
