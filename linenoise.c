@@ -1312,33 +1312,47 @@ static char *linenoiseNoTTY(void) {
     }
 }
 
+/* This function is called when linenoise() is called with the standard
+ * input file descriptor attached to an unsupported TTY. In this case,
+ * don't provide any line-editing capabilies and transparently return the
+ * string provided by the user. */
+static char *linenoiseUnsuppTTY(const char *prompt) {
+    char buf[LINENOISE_MAX_LINE];
+    size_t len;
+
+    printf("%s",prompt);
+    fflush(stdout);
+    if (fgets(buf,LINENOISE_MAX_LINE,stdin) == NULL) return NULL;
+    len = strlen(buf);
+    while(len && (buf[len-1] == '\n' || buf[len-1] == '\r')) {
+        len--;
+        buf[len] = '\0';
+    }
+    return strdup(buf);
+}
+
+/* This function is called when linenoise() is called with the standard
+ * input file descriptor attached to a supported TTY. In this case,
+ * we provide full line-editing capabilies. */
+static char *linenoiseSuppTTY(const char *prompt) {
+    char buf[LINENOISE_MAX_LINE];
+    return linenoiseBlockingEdit(STDIN_FILENO,STDOUT_FILENO,buf,LINENOISE_MAX_LINE,prompt);
+}
+
 /* The high level function that is the main API of the linenoise library.
  * This function checks if the terminal has basic capabilities, just checking
  * for a blacklist of stupid terminals, and later either calls the line
  * editing function or uses dummy fgets() so that you will be able to type
  * something even in the most desperate of the conditions. */
 char *linenoise(const char *prompt) {
-    char buf[LINENOISE_MAX_LINE];
-
     if (!isatty(STDIN_FILENO)) {
         /* Not a tty: read from file / pipe. In this mode we don't want any
          * limit to the line size, so we call a function to handle that. */
         return linenoiseNoTTY();
     } else if (isUnsupportedTerm()) {
-        size_t len;
-
-        printf("%s",prompt);
-        fflush(stdout);
-        if (fgets(buf,LINENOISE_MAX_LINE,stdin) == NULL) return NULL;
-        len = strlen(buf);
-        while(len && (buf[len-1] == '\n' || buf[len-1] == '\r')) {
-            len--;
-            buf[len] = '\0';
-        }
-        return strdup(buf);
+        return linenoiseUnsuppTTY(prompt);
     } else {
-        char *retval = linenoiseBlockingEdit(STDIN_FILENO,STDOUT_FILENO,buf,LINENOISE_MAX_LINE,prompt);
-        return retval;
+        return linenoiseSuppTTY(prompt);
     }
 }
 
