@@ -587,7 +587,7 @@ static void abFree(struct abuf *ab) {
 
 /* Helper of refreshSingleLine() and refreshMultiLine() to show hints
  * to the right of the prompt. */
-void refreshShowHints(struct abuf *ab, struct linenoiseState *l, int pcollen) {
+static void refreshShowHints(struct abuf *ab, struct linenoiseState *l, int pcollen) {
     char seq[64];
     size_t collen = pcollen+columnPos(l->buf,l->len,l->len);
     if (hintsCallback && collen < l->cols) {
