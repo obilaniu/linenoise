@@ -1,0 +1,6 @@
+option('build_examples',   type: 'boolean', value: false)
+option('install_examples', type: 'boolean', value: false)
+option('install_libs',     type: 'boolean', value: false)
+option('compat',           type: 'boolean', value: true)
+option('max_line_size',    type: 'integer', value: 4096, min: 0, max: 1048576)
+option('name_prefix',      type: 'array',   value: [])
